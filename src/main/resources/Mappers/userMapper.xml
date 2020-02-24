@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserMapper">
+	<resultMap type="User" id="UserResultMap">
+		<id column="sn" property="sn"/>
+		<result column="email" property="email"/>
+		<result column="passwd" property="passwd"/>
+		<result column="name" property="name"/>
+		<result column="phone" property="phone"/>
+		<result column="created_at" property="createdAt"/>
+		<result column="updated_at" property="updatedAt"/>
+	</resultMap>
+	
+	<insert id="insertUser" useGeneratedKeys="true" keyProperty="sn" keyColumn="sn"><!-- insert를 하고 keyColumn이 sn이면 DB에서 sn을 가져오고 자바 sn에다 넣어주고 insertUser를 쓴 매개변수에다 sn값을 넣어준다 없으면 말구 -->
+		insert into user(email,passwd,name,phone)
+		values(#{email},#{passwd},#{name},#{phone}) 
+	</insert>
+	
+	<select id="selectUserByEmailAndPasswd" resultMap="UserResultMap">
+		select sn, email, name, phone
+		from user
+		<where>
+			and email = #{email}
+			and passwd = #{passwd}
+		</where>
+	</select>
+	
+	<select id="selectUserBySn" resultMap="UserResultMap">
+		select sn, email, name, phone
+		from user
+		where sn = #{sn}
+	</select>
+	
+	<update id="updateUserBySn">
+		update user 
+		set name = #{name}, email = #{email}, phone = #{phone}
+		where sn = #{sn}
+	</update>
+</mapper>

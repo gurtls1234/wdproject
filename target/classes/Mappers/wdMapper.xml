@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="WdMapper">
+	<resultMap type="Wd" id="wdResultMap">
+		<id column="wd_sn" property="sn"/>
+		<result column="wd_title" property="title"/>
+		<result column="wd_company_sn" property="companySn"/>
+		<result column="wd_location_sn" property="locationSn"/>
+		<result column="wd_content" property="content"/>
+		<result column="wd_main_task" property="mainTask"/>
+		<result column="wd_qualification" property="qualification"/>
+		<result column="wd_preference" property="preference"/>
+		<result column="wd_benefit" property="benefit"/>
+		<result column="wd_end_dt" property="endDt"/>
+		<result column="wd_work_location" property="workLocation"/>
+		<result column="wd_creaeted_at" property="createdAt"/>
+		<result column="wd_updated_at" property="updatedAt"/>
+		<association property="company">
+			<id column="company_sn" property="sn"/>
+			<result column="company_name" property="name"/>
+			<result column="company_icon_path" property="iconPath"/>
+			<collection property="imageSet" javaType="java.util.TreeSet" ofType="CompanyImage">
+				<id column="company_image_sn" property="sn"/>
+				<result column="company_image_order" property="order"/>
+				<result column="company_image_path" property="path"/>
+			</collection>
+		</association>
+		<association property="location">
+			<id column="location_sn" property="sn"/>
+			<result column="location_name_ko" property="nameKo"/>
+			<result column="location_name_en" property="nameEn"/>
+		</association>
+	</resultMap>
+	
+	<sql id="sql_wd_columns">
+		w.sn as wd_sn, w.title as wd_title, w.company_sn as wd_company_sn, w.location_sn as wd_location_sn, w.content as wd_content, 
+		w.main_task as wd_main_task, w.qualification as wd_qualification, w.preference as wd_preference, w.benefit as wd_benefit,
+		w.end_dt as wd_end_dt, w.work_location as wd_work_location, w.created_at as wd_created_at, w.updated_at as wd_updated_at
+	</sql>
+	
+	<sql id="sql_company_columns">
+		c.sn as company_sn, c.name as company_name, c.icon_path as company_icon_path
+	</sql>
+	
+	<sql id="sql_company_image_columns">
+		ci.sn as company_image_sn, ci.order as company_image_order, ci.path as company_image_path
+	</sql>
+	
+	<select id="findWdList" resultMap="wdResultMap">
+		select wd2.*,
+			<include refid="sql_company_image_columns"></include>
+		from (
+			select 	<include refid="sql_wd_columns"></include>,
+					<include refid="sql_company_columns"></include>,
+					l.sn as location_sn, l.name_ko as location_name_ko, l.name_en as location_name_en
+			from wd w
+			inner join company c on w.company_sn = c.sn
+			inner join location l on w.location_sn = l.sn <if test='location != null and location != "all"'> and l.name_en = #{location} </if>
+			<choose>
+				<when test='sort == "latest"'>
+					order by w.sn desc
+				</when>
+				<when test='sort == "popularity"'>
+					order by w.sn desc
+				</when>
+				<otherwise>
+					order by w.sn desc
+				</otherwise>
+			</choose>
+			limit #{limitStart}, #{limitSize}
+		) wd2
+		left outer join company_image ci on wd2.company_sn = ci.company_sn
+		<choose>
+			<when test='sort == "latest"'>
+				order by wd2.wd_sn desc, ci.order asc
+			</when>
+			<when test='sort == "popularity"'>
+				order by wd2.wd_sn desc, ci.order asc
+			</when>
+			<otherwise>
+				order by wd2.wd_sn desc, ci.order asc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 
+	wd	wd_image
+	1	1
+	1	2
+	1	3
+	2	null
+	3	1
+	
+	limit 1, 3 -->
+	
+	<select id="findWdBySn" resultMap="wdResultMap">
+		select 	<include refid="sql_wd_columns"></include>,
+				<include refid="sql_company_columns"></include>,
+				<include refid="sql_company_image_columns"></include>,
+				l.sn as location_sn, l.name_ko as location_name_ko, l.name_en as location_name_en
+		from wd w
+		inner join company c on w.company_sn = c.sn
+		inner join location l on w.location_sn = l.sn
+		left outer join company_image ci on w.company_sn = ci.company_sn
+		where w.sn = #{sn}
+	</select>
+	
+	
+	
+</mapper>

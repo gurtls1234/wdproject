@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ApplicationMapper">
+	
+	<resultMap type="Application" id="ApplicationResultMap">
+		<id column="sn" property="sn"/>
+		<result column="wd_sn" property="wdSn"/>
+		<result column="cv_sn" property="cvSn"/>
+		<result column="user_sn" property="userSn"/>
+		<result column="status" property="status" typeHandler="com.gurtls.wdproject.common.ApplicationStatusTypeHandler"/>
+		<result column="created_at" property="createdAt"/>
+		<result column="updated_at" property="updatedAt"/>
+		<association property="wd" resultMap="WdMapper.wdResultMap"/>
+	</resultMap>
+	
+	<resultMap type="ApplicationStatusCountVO" id="ApplicationStatusCountResultMap">
+		<result column="status" property="status" typeHandler="com.gurtls.wdproject.common.ApplicationStatusTypeHandler"/>
+		<result column="count" property="count"/>
+	</resultMap>
+	
+	<select id="selectApplicationList" resultMap="ApplicationResultMap">
+		select a.sn, a.wd_sn, a.cv_sn, a.user_sn, a.status, a.created_at, a.updated_at,
+		<include refid="WdMapper.sql_wd_columns"></include>,
+		<include refid="WdMapper.sql_company_columns"></include>
+		from application a
+		inner join wd w on a.wd_sn = w.sn
+		inner join company c on w.company_sn = c.sn
+		where user_sn = #{userSn}
+		<if test="status != null">
+			and status = #{status}
+		</if>
+		order by a.sn desc
+		limit #{limitStart}, #{limitSize}
+	</select>
+	
+	<select id="selectApplicationStatusCount" resultMap="ApplicationStatusCountResultMap">
+		select status, count(*) as count
+		from application
+		where user_sn = #{userSn}
+		group by status 
+	</select>
+	
+	<!-- <update id="" statementType="CALLABLE">
+		{ call ABC(
+			#{cvSn},
+			#{userSn},
+			#{result}
+		);}
+	</update> -->
+	
+	<select id="selectApplcationByUserSnAndWdSn" resultMap="ApplicationResultMap">
+		select sn, wd_sn, cv_sn, user_sn, status, created_at, updated_at
+		from application
+		where user_sn = #{userSn}
+		and wd_sn = #{wdSn}
+	</select>
+	
+	<insert id="insertApplication" useGeneratedKeys="true" keyColumn="sn" keyProperty="sn">
+		insert into application(user_sn, wd_sn, cv_sn)
+		values(#{userSn}, #{wdSn}, #{cvSn})
+	</insert>
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+	PUBLIC "-//mybatis.org//DTD Config 3.0/EN"
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<!-- <settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>자바(CamelCase)와 디비(snakecase = Underscore) 변수명을 같게 해주는거 
+	</settings> -->
+	<typeAliases>
+		<package name="com.gurtls.wdproject.model"/><!-- 이게 무슨 역할을 하는건가? --><!-- model에 있는 모든 클래스 alias자동 (클래스 명으로 자동)-->
+	</typeAliases>
+	
+
+</configuration>

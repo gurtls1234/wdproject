@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CvMapper">
+	<resultMap type="Cv" id="CvResultMap">
+		<id column="sn" property="sn"/>
+		<result column="user_sn" property="userSn"/>
+		<result column="content" property="content" typeHandler="com.gurtls.wdproject.common.CvContentTypeHandler"/>
+		<result column="created_at" property="createdAt"/>
+		<!-- <result column="updated_at" property="updatedAt"/> -->
+	</resultMap>
+	
+	<insert id="insertCv" useGeneratedKeys="true" keyColumn="sn" keyProperty="sn">
+		insert into cv(user_sn, title, content)
+		value(#{userSn}, #{title}, #{content, typeHandler=com.gurtls.wdproject.common.CvContentTypeHandler})
+	</insert>
+	
+	<!--
+	<insert id="insertCv">
+		<selectKey keyProperty="sn" resultType="long" order="AFTER">
+	    	select last_insert_id();
+	  	</selectKey>
+		insert into cv(user_sn, title, content)
+		value(#{userSn}, #{title}, #{content, typeHandler=com.gurtls.wdproject.common.CvContentTypeHandler})
+	</insert> -->
+	
+	<select id="selectCvList" resultMap="CvResultMap">
+		select sn, user_sn, title, created_at
+		from cv
+		where user_sn = #{userSn}
+	</select>
+	
+	<select id="selectCv" resultMap="CvResultMap">
+		select sn, user_sn, title, content, created_at
+		from cv
+		where sn = #{sn}
+	</select>
+	
+	<update id="updateCv">
+		update cv
+		set content = #{content}
+		where sn = #{sn}
+	</update>
+	
+	<update id="updateCvTitle">
+		update cv
+		set title = #{title}
+		where sn = #{sn}
+	</update>
+	
+	<delete id="deleteCv">
+	delete from cv
+	where sn = #{sn}
+	</delete>
+	<!-- insertCvImg(long cvSn, List<String> imgUrlList) -->
+	<!-- 
+	<insert id="insertCvImg">
+		insert into cv_img(cv_sn, img_url)
+		values
+		<foreach collection="imgUrlList" item="imgUrl" separator=",">
+			(#{cvSn}, #{imgUrl})
+		</foreach>
+	</insert> 
+	-->
+	
+</mapper>
